@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+db.sqlite3
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media
+
+# Node
+node_modules/
+dist/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp

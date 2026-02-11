@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeDresses | The Pinnacle of Elegance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d4d4d4; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .cart-open { transform: translateX(0) !important; }
+    </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900 selection:bg-amber-100 overflow-x-hidden">
+
+    <!-- Payment Processing Overlay -->
+    <div id="payment-overlay" class="fixed inset-0 z-[200] bg-white hidden flex-col items-center justify-center p-6 text-center">
+        <div class="mb-8">
+            <h1 class="text-xl font-serif font-bold tracking-tighter mb-2 italic text-amber-900">LUXEDRESSES</h1>
+            <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">Secure Gateway</p>
+        </div>
+        <div class="relative mb-8">
+            <div class="w-16 h-16 border-4 border-amber-800 border-t-transparent rounded-full animate-spin"></div>
+            <i data-lucide="shield-check" class="w-6 h-6 text-amber-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></i>
+        </div>
+        <h2 class="text-xl font-medium mb-2 font-serif">Verifying Transaction...</h2>
+        <p class="text-neutral-500 text-sm max-w-xs leading-relaxed">Securing your luxury selection with your bank. Do not refresh.</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-100">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-12">
+                <h1 onclick="showView('home')" class="text-2xl font-serif font-bold tracking-tighter cursor-pointer hover:text-amber-800 transition-colors">
+                    LUXE<span class="font-light italic text-amber-900">DRESSES</span>
+                </h1>
+                <div class="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-[0.25em] text-neutral-400">
+                    <span onclick="showView('home')" class="nav-link hover:text-black cursor-pointer transition-colors border-b-2 border-transparent py-1">Collection</span>
+                    <span onclick="showView('orders')" class="nav-link hover:text-black cursor-pointer transition-colors border-b-2 border-transparent py-1">My Orders</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 lg:gap-8">
+                <button onclick="toggleLoginModal()" class="flex flex-col items-center group">
+                    <i data-lucide="user" class="w-5 h-5 group-hover:text-amber-800"></i>
+                    <span id="user-label" class="text-[9px] font-bold uppercase mt-1">Login</span>
+                </button>
+                <button onclick="showView('wishlist')" class="flex flex-col items-center group relative">
+                    <i data-lucide="heart" id="wishlist-icon" class="w-5 h-5 group-hover:text-amber-800"></i>
+                    <span id="wishlist-count" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                    <span class="text-[9px] font-bold uppercase mt-1">Wishlist</span>
+                </button>
+                <button onclick="toggleCart()" class="flex flex-col items-center group relative">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 group-hover:text-amber-800"></i>
+                    <span id="cart-count" class="hidden absolute -top-1 -right-1 bg-amber-800 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                    <span class="text-[9px] font-bold uppercase mt-1">Bag</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Views Container -->
+    <div id="view-container">
+        <!-- Views will be injected here by JavaScript -->
+    </div>
+
+    <!-- Quick View Modal -->
+    <div id="quick-view-modal" class="fixed inset-0 z-[150] hidden items-center justify-center p-6">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" onclick="closeQuickView()"></div>
+        <div id="quick-view-content" class="relative bg-white w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row scale-95 opacity-0 transition-all duration-300">
+            <!-- Content injected here -->
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 z-[160] hidden items-center justify-center p-6">
+        <div class="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" onclick="toggleLoginModal()"></div>
+        <div class="relative bg-white w-full max-w-md p-12 rounded-3xl shadow-2xl">
+            <button onclick="toggleLoginModal()" class="absolute top-6 right-6 text-neutral-300 hover:text-black"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <div class="text-center mb-12">
+                <h3 class="text-4xl font-serif mb-3 italic">Welcome Back</h3>
+                <p class="text-neutral-400 text-[10px] font-bold uppercase tracking-[0.2em]">Enter your couture profile</p>
+            </div>
+            <div class="space-y-6">
+                <input type="email" placeholder="Email Address" class="w-full p-4 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50">
+                <input type="password" placeholder="Password" class="w-full p-4 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50">
+                <button onclick="authenticate()" class="w-full bg-neutral-900 text-white py-5 font-bold uppercase tracking-[0.3em] text-[11px] hover:bg-amber-900 shadow-lg rounded-full">Authenticate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Side Drawer -->
+    <div id="cart-drawer-overlay" class="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm hidden" onclick="toggleCart()"></div>
+    <div id="cart-drawer" class="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-[101] shadow-2xl translate-x-full transition-transform duration-500 flex flex-col">
+        <div class="p-8 border-b border-neutral-100 flex items-center justify-between">
+            <h3 class="font-bold uppercase tracking-[0.3em] text-xs">Your Bag</h3>
+            <button onclick="toggleCart()"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+            <!-- Items injected here -->
+        </div>
+        <div id="cart-footer" class="p-8 bg-neutral-50 border-t border-neutral-100 hidden">
+            <div class="flex justify-between mb-8">
+                <span class="font-bold uppercase text-[10px] tracking-[0.2em] text-neutral-400 italic">Total Value</span>
+                <span id="cart-total" class="font-bold text-2xl font-serif text-amber-900">₹0</span>
+            </div>
+            <button onclick="goToCheckout()" class="w-full bg-amber-800 text-white py-5 font-bold uppercase tracking-[0.3em] text-[11px] rounded-full shadow-xl">Secure Checkout</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-neutral-100 py-32 mt-40">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h1 class="text-4xl font-serif font-bold tracking-tighter mb-6">LUXE<span class="font-light italic text-amber-900">DRESSES</span></h1>
+            <p class="text-neutral-400 text-[11px] uppercase tracking-[0.6em] mb-16 italic font-bold">The Pinnacle of Elegance</p>
+            <div class="flex flex-wrap justify-center gap-16 text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">
+                <span>Our Studio</span>
+                <span onclick="showView('orders')" class="cursor-pointer">Trace Order</span>
+                <span>Private Concierge</span>
+            </div>
+            <p class="mt-32 text-[9px] text-neutral-300 font-bold tracking-[0.4em] uppercase">© 2024 LUXEDRESSES PRIVATE ATELIER.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Data
+        const DRESSES = [
+            { id: 1, name: "Ethereal Midnight Silk Gown", price: 24999, category: "Long Frock", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=800", rating: 4.9, sizes: ["S", "M", "L", "XL"], description: "Hand-stitched mulberry silk with intricate silver embroidery. Features a dramatic floor-length sweep." },
+            { id: 2, name: "Golden Hour Velvet Frock", price: 18500, category: "Luxury Wear", image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&q=80&w=800", rating: 4.8, sizes: ["XS", "S", "M", "L"], description: "Plush Italian velvet in a rich ochre gold. Structured bodice with cascading pleated skirt." },
+            { id: 4, name: "Ivory Pearl Satin Dress", price: 21000, category: "Bridal/Luxury", image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&q=80&w=800", rating: 5.0, sizes: ["S", "M", "L"], description: "Heavyweight premium satin featuring a pearl-encrusted high neckline." },
+            { id: 6, name: "Sapphire Dream Chiffon", price: 27500, category: "Luxury Wear", image: "https://images.unsplash.com/photo-1612459284970-e8f027596582?auto=format&fit=crop&q=80&w=800", rating: 4.7, sizes: ["M", "L", "XL"], description: "Airy multilayered French chiffon with a 5-meter flare." }
+        ];
+
+        // State
+        let cart = [];
+        let wishlist = [];
+        let orders = [];
+        let user = null;
+        let currentView = 'home';
+        let paymentStep = 0;
+
+        // Init
+        window.onload = () => {
+            lucide.createIcons();
+            showView('home');
+        };
+
+        // UI Handlers
+        function showView(view) {
+            currentView = view;
+            const container = document.getElementById('view-container');
+            container.innerHTML = '';
+            
+            // Highlight active nav link
+            document.querySelectorAll('.nav-link').forEach((link, idx) => {
+                if((view === 'home' && idx === 0) || (view === 'orders' && idx === 1)) {
+                    link.classList.add('border-amber-800', 'text-black');
+                } else {
+                    link.classList.remove('border-amber-800', 'text-black');
+                }
+            });
+
+            if (view === 'home') renderHome();
+            else if (view === 'wishlist') renderWishlist();
+            else if (view === 'orders') renderOrders();
+            else if (view === 'checkout') renderCheckout();
+            
+            lucide.createIcons();
+            window.scrollTo(0, 0);
+        }
+
+        function renderHome() {
+            const container = document.getElementById('view-container');
+            container.innerHTML = `
+                <header class="relative h-[65vh] overflow-hidden bg-neutral-900">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=2000" class="absolute inset-0 w-full h-full object-cover opacity-50 scale-105" alt="">
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
+                        <h2 class="text-[10px] uppercase tracking-[0.6em] mb-6 font-bold opacity-70">Hand-Picked Collections</h2>
+                        <h1 class="text-5xl md:text-7xl font-serif mb-10 leading-tight">Masterpieces in <br/><span class="italic font-light">Long Frocks</span></h1>
+                        <button onclick="document.getElementById('catalog').scrollIntoView({behavior: 'smooth'})" class="bg-white text-neutral-900 px-12 py-5 font-bold uppercase tracking-[0.3em] text-[11px] hover:bg-neutral-100 transition-all flex items-center gap-3">
+                            Shop the Edit <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </header>
+                <main id="catalog" class="max-w-7xl mx-auto px-4 py-24 fade-in">
+                    <div class="flex flex-col md:flex-row justify-between items-baseline mb-16 gap-4">
+                        <h3 class="text-4xl font-serif italic">Our Signature Gowns</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+                        ${DRESSES.map(dress => `
+                            <div class="group flex flex-col bg-white">
+                                <div class="relative aspect-[3/4] overflow-hidden bg-neutral-100 cursor-pointer" onclick="openQuickView(${dress.id})">
+                                    <img src="${dress.image}" class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-110">
+                                    <button onclick="event.stopPropagation(); toggleWishlist(${dress.id})" class="absolute top-4 right-4 p-2.5 bg-white/90 rounded-full">
+                                        <i data-lucide="heart" class="w-4 h-4 ${wishlist.find(i => i.id === dress.id) ? 'fill-red-500 text-red-500' : 'text-neutral-400'}"></i>
+                                    </button>
+                                    <div class="absolute bottom-4 left-4 right-4 bg-white/95 py-4 text-[10px] font-bold uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all text-center">Quick View</div>
+                                </div>
+                                <div class="pt-6 text-center">
+                                    <p class="text-[9px] uppercase tracking-widest text-neutral-400 mb-2 font-bold">${dress.category}</p>
+                                    <h4 class="font-serif text-lg mb-1">${dress.name}</h4>
+                                    <p class="font-bold text-amber-900 tracking-wide">₹${dress.price.toLocaleString('en-IN')}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </main>
+            `;
+        }
+
+        function renderWishlist() {
+            const container = document.getElementById('view-container');
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="max-w-7xl mx-auto px-4 py-32 text-center fade-in">
+                        <i data-lucide="heart" class="w-16 h-16 mx-auto text-neutral-100 mb-8"></i>
+                        <p class="text-neutral-400 italic text-lg mb-10">Your luxury wishlist is currently empty.</p>
+                        <button onclick="showView('home')" class="bg-neutral-900 text-white px-12 py-4 font-bold uppercase tracking-widest text-[11px]">Discover Collection</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="max-w-7xl mx-auto px-4 py-24 fade-in">
+                        <h2 class="text-4xl font-serif mb-16 text-center italic">My Private Curation</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-12">
+                            ${wishlist.map(item => `
+                                <div class="bg-white p-3 border border-neutral-100 shadow-sm">
+                                    <img src="${item.image}" class="w-full aspect-[3/4] object-cover mb-4">
+                                    <h5 class="font-serif text-center text-md mb-2">${item.name}</h5>
+                                    <button onclick="openQuickView(${item.id})" class="w-full bg-neutral-900 text-white py-3.5 text-[10px] font-bold uppercase tracking-widest">Select Size</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('view-container');
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="max-w-4xl mx-auto px-4 py-32 text-center fade-in">
+                        <i data-lucide="package" class="w-16 h-16 mx-auto text-neutral-100 mb-8"></i>
+                        <h4 class="text-xl font-serif mb-2">No Past Orders</h4>
+                        <p class="text-neutral-400 mb-10 font-light">Your wardrobe is waiting for its first luxury addition.</p>
+                        <button onclick="showView('home')" class="bg-neutral-900 text-white px-12 py-4 font-bold uppercase tracking-widest text-[10px]">Start Shopping</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="max-w-4xl mx-auto px-4 py-24 fade-in">
+                        <h2 class="text-4xl font-serif mb-16">Order History</h2>
+                        <div class="space-y-10">
+                            ${orders.map(order => `
+                                <div class="bg-white border border-neutral-100 rounded-2xl overflow-hidden shadow-sm">
+                                    <div class="bg-neutral-50 px-8 py-6 flex justify-between items-center border-b border-neutral-100">
+                                        <div class="flex gap-12">
+                                            <div><p class="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Order ID</p><p class="text-sm font-bold font-mono">#${order.id}</p></div>
+                                            <div><p class="text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Date</p><p class="text-sm font-bold">${order.date}</p></div>
+                                        </div>
+                                        <span class="px-4 py-1.5 bg-green-50 text-green-700 text-[10px] font-bold uppercase tracking-widest rounded-full">${order.status}</span>
+                                    </div>
+                                    <div class="p-8">
+                                        <div class="space-y-6">
+                                            ${order.items.map(item => `
+                                                <div class="flex gap-6 items-center">
+                                                    <img src="${item.image}" class="w-12 h-16 object-cover rounded shadow-sm">
+                                                    <div class="flex-1"><h5 class="text-sm font-bold">${item.name}</h5><p class="text-[9px] font-bold uppercase text-neutral-400 mt-1">Size: ${item.size} | Qty: ${item.qty}</p></div>
+                                                    <p class="font-bold text-sm">₹${(item.price * item.qty).toLocaleString()}</p>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                        <div class="mt-8 pt-8 border-t border-neutral-50 flex justify-between items-end">
+                                            <div class="flex items-center gap-2 text-neutral-400 text-xs tracking-widest font-bold uppercase">
+                                                <i data-lucide="shield-check" class="w-4 h-4 text-amber-800"></i> Bespoke Handling
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[9px] font-bold uppercase text-neutral-400 mb-1 tracking-widest">Grand Total</p>
+                                                <p class="text-2xl font-serif text-amber-900 font-bold">₹${order.total.toLocaleString()}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderCheckout() {
+            const container = document.getElementById('view-container');
+            const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+            
+            if (paymentStep === 2) {
+                container.innerHTML = `
+                    <div class="max-w-3xl mx-auto px-4 py-24 text-center fade-in">
+                        <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-10 border border-green-100"><i data-lucide="check-circle" class="w-14 h-14 text-green-600"></i></div>
+                        <h2 class="text-4xl font-serif mb-6 italic">A Luxury Choice.</h2>
+                        <p class="text-neutral-500 mb-14 max-w-sm mx-auto font-light text-lg leading-relaxed">Your order is being meticulously prepared. You will receive bespoke tracking shortly.</p>
+                        <div class="flex flex-col gap-6 max-w-xs mx-auto">
+                            <button onclick="showView('orders')" class="w-full bg-neutral-900 text-white py-5 font-bold uppercase tracking-[0.25em] text-[11px] rounded-full">View Order Details</button>
+                            <button onclick="paymentStep=0; showView('home')" class="w-full text-neutral-400 font-bold uppercase tracking-widest text-[10px] hover:text-amber-800 underline underline-offset-8">Return to Studio</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="max-w-3xl mx-auto px-4 py-24 fade-in">
+                    <div class="flex items-center justify-center gap-10 mb-20">
+                        <div class="flex items-center gap-3 ${paymentStep === 0 ? 'text-amber-800' : 'text-neutral-400'}">
+                            <span class="w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold ${paymentStep === 0 ? 'bg-amber-800 border-amber-800 text-white' : 'border-neutral-200'}">1</span>
+                            <span class="text-[11px] uppercase font-bold tracking-[0.3em]">Address</span>
+                        </div>
+                        <div class="w-12 h-[2px] bg-neutral-200"></div>
+                        <div class="flex items-center gap-3 ${paymentStep === 1 ? 'text-amber-800' : 'text-neutral-400'}">
+                            <span class="w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold ${paymentStep === 1 ? 'bg-amber-800 border-amber-800 text-white' : 'border-neutral-200'}">2</span>
+                            <span class="text-[11px] uppercase font-bold tracking-[0.3em]">Pay</span>
+                        </div>
+                    </div>
+
+                    ${paymentStep === 0 ? `
+                        <div class="bg-white p-14 border border-neutral-100 rounded-3xl shadow-sm">
+                            <h3 class="text-3xl font-serif mb-12 italic">Where should we deliver?</h3>
+                            <div class="space-y-6">
+                                <input placeholder="Full Name" class="w-full p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50">
+                                <div class="grid grid-cols-2 gap-6">
+                                    <input placeholder="Phone" class="p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50">
+                                    <input placeholder="Pin Code" class="p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50">
+                                </div>
+                                <textarea placeholder="Street Address" class="w-full p-4.5 border border-neutral-200 rounded-xl text-sm h-32 outline-none bg-neutral-50"></textarea>
+                            </div>
+                            <button onclick="setPaymentStep(1)" class="w-full mt-12 bg-amber-800 text-white py-6 font-bold uppercase tracking-[0.3em] text-[12px] rounded-full">Continue to Payment</button>
+                        </div>
+                    ` : `
+                        <div class="bg-white p-14 border border-neutral-100 rounded-3xl shadow-sm">
+                            <div class="flex justify-between items-center mb-12 pb-6 border-b border-neutral-100">
+                                <h3 class="text-3xl font-serif italic">Secure Payment</h3>
+                                <i data-lucide="shield-check" class="text-green-600 w-6 h-6"></i>
+                            </div>
+                            <div class="p-8 bg-neutral-900 text-white rounded-2xl mb-12">
+                                <p class="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-2">Payable Amount</p>
+                                <p class="text-3xl font-serif text-amber-400 font-bold">₹${total.toLocaleString()}</p>
+                            </div>
+                            <div class="space-y-6">
+                                <input placeholder="Card Number" class="w-full p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50">
+                                <div class="grid grid-cols-2 gap-6">
+                                    <input placeholder="MM/YY" class="p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50">
+                                    <input placeholder="CVV" type="password" class="p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50">
+                                </div>
+                            </div>
+                            <button onclick="handlePayment()" class="w-full mt-12 bg-amber-800 text-white py-6 font-bold uppercase tracking-[0.3em] text-[12px] rounded-full flex justify-center gap-3">
+                                <i data-lucide="lock" class="w-4 h-4"></i> Securely Pay ₹${total.toLocaleString()}
+                            </button>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function openQuickView(id) {
+            const dress = DRESSES.find(d => d.id === id);
+            const modal = document.getElementById('quick-view-modal');
+            const content = document.getElementById('quick-view-content');
+            
+            content.innerHTML = `
+                <div class="w-full md:w-1/2 aspect-[3/4] md:aspect-auto overflow-hidden">
+                    <img src="${dress.image}" class="w-full h-full object-cover">
+                </div>
+                <div class="w-full md:w-1/2 p-12 flex flex-col justify-between">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold tracking-[0.3em] text-amber-800 mb-4">${dress.category}</p>
+                        <h3 class="text-4xl font-serif mb-6 leading-tight">${dress.name}</h3>
+                        <p class="text-2xl font-bold text-neutral-900 mb-8 italic font-serif">₹${dress.price.toLocaleString()}</p>
+                        <p class="text-neutral-500 leading-relaxed text-sm mb-12 italic border-l-4 border-amber-100 pl-6">${dress.description}</p>
+                        
+                        <div class="mb-12">
+                            <p class="text-[10px] uppercase font-bold tracking-[0.2em] mb-4 text-neutral-400">Select Bespoke Size</p>
+                            <div class="flex flex-wrap gap-4">
+                                ${dress.sizes.map(size => `
+                                    <button onclick="addToBag(${dress.id}, '${size}')" class="w-14 h-14 border border-neutral-200 flex items-center justify-center text-xs font-bold hover:border-amber-800 hover:text-amber-800 transition-all rounded-lg">${size}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] uppercase text-neutral-300 font-bold tracking-widest italic">Free Worldwide Express Shipping & Returns</p>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+            lucide.createIcons();
+        }
+
+        function closeQuickView() {
+            const modal = document.getElementById('quick-view-modal');
+            const content = document.getElementById('quick-view-content');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function toggleWishlist(id) {
+            const idx = wishlist.findIndex(i => i.id === id);
+            if (idx > -1) wishlist.splice(idx, 1);
+            else wishlist.push(DRESSES.find(d => d.id === id));
+            
+            updateBadges();
+            if (currentView === 'home') renderHome();
+            else if (currentView === 'wishlist') renderWishlist();
+        }
+
+        function addToBag(id, size) {
+            const dress = DRESSES.find(d => d.id === id);
+            const exists = cart.find(i => i.id === id && i.size === size);
+            
+            if (exists) exists.qty++;
+            else cart.push({ ...dress, size, qty: 1 });
+            
+            closeQuickView();
+            updateBadges();
+            renderCart();
+            toggleCart(true);
+        }
+
+        function removeFromCart(id, size) {
+            const idx = cart.findIndex(i => i.id === id && i.size === size);
+            if (idx > -1) cart.splice(idx, 1);
+            updateBadges();
+            renderCart();
+        }
+
+        function updateBadges() {
+            const wCount = document.getElementById('wishlist-count');
+            const cCount = document.getElementById('cart-count');
+            
+            wCount.innerText = wishlist.length;
+            wCount.classList.toggle('hidden', wishlist.length === 0);
+            
+            cCount.innerText = cart.length;
+            cCount.classList.toggle('hidden', cart.length === 0);
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items');
+            const footer = document.getElementById('cart-footer');
+            const totalDisplay = document.getElementById('cart-total');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-32 opacity-20"><i data-lucide="shopping-bag" class="w-16 h-16 mx-auto mb-6"></i><p class="italic tracking-widest uppercase">The bag is empty.</p></div>`;
+                footer.classList.add('hidden');
+            } else {
+                container.innerHTML = cart.map(item => `
+                    <div class="flex gap-6 pb-8 border-b border-neutral-50 fade-in">
+                        <img src="${item.image}" class="w-24 h-32 object-cover rounded-lg shadow-md">
+                        <div class="flex-1 flex flex-col justify-between py-1">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-serif text-md font-bold text-neutral-800">${item.name}</h4>
+                                    <button onclick="removeFromCart(${item.id}, '${item.size}')" class="text-neutral-300 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+                                </div>
+                                <span class="inline-block mt-3 text-[9px] font-bold uppercase tracking-widest bg-neutral-100 px-2 py-1 rounded">Size: ${item.size}</span>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div class="flex items-center border border-neutral-200 rounded">
+                                    <button onclick="changeQty(${item.id}, '${item.size}', -1)" class="px-3 py-1.5 hover:bg-neutral-50"><i data-lucide="minus" class="w-3 h-3"></i></button>
+                                    <span class="px-4 text-xs font-bold">${item.qty}</span>
+                                    <button onclick="changeQty(${item.id}, '${item.size}', 1)" class="px-3 py-1.5 hover:bg-neutral-50"><i data-lucide="plus" class="w-3 h-3"></i></button>
+                                </div>
+                                <p class="font-bold text-amber-900 font-serif">₹${(item.price * item.qty).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+                totalDisplay.innerText = `₹${total.toLocaleString()}`;
+                footer.classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        function changeQty(id, size, delta) {
+            const item = cart.find(i => i.id === id && i.size === size);
+            if (item) {
+                item.qty += delta;
+                if (item.qty < 1) removeFromCart(id, size);
+                else renderCart();
+            }
+        }
+
+        function toggleCart(forceOpen = false) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+            const isOpen = drawer.classList.contains('cart-open');
+            
+            if (isOpen && !forceOpen) {
+                drawer.classList.remove('cart-open');
+                overlay.classList.add('hidden');
+            } else {
+                drawer.classList.add('cart-open');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function toggleLoginModal() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function authenticate() {
+            user = { name: 'Gamya' };
+            document.getElementById('user-label').innerText = 'Hi, Gamya';
+            toggleLoginModal();
+        }
+
+        function goToCheckout() {
+            toggleCart();
+            paymentStep = 0;
+            showView('checkout');
+        }
+
+        function setPaymentStep(step) {
+            paymentStep = step;
+            showView('checkout');
+        }
+
+        function handlePayment() {
+            const overlay = document.getElementById('payment-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                
+                const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+                const order = {
+                    id: Math.floor(10000 + Math.random() * 90000),
+                    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+                    items: [...cart],
+                    total: total,
+                    status: 'Confirmed'
+                };
+                
+                orders.unshift(order);
+                cart = [];
+                updateBadges();
+                paymentStep = 2;
+                showView('checkout');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+export const DRESSES = [
+    { id: 1, name: "Ethereal Midnight Silk Gown", price: 24999, category: "Long Frock", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&q=80&w=800", rating: 4.9, sizes: ["S", "M", "L", "XL"], description: "Hand-stitched mulberry silk with intricate silver embroidery. Features a dramatic floor-length sweep." },
+    { id: 2, name: "Golden Hour Velvet Frock", price: 18500, category: "Luxury Wear", image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&q=80&w=800", rating: 4.8, sizes: ["XS", "S", "M", "L"], description: "Plush Italian velvet in a rich ochre gold. Structured bodice with cascading pleated skirt." },
+    { id: 4, name: "Ivory Pearl Satin Dress", price: 21000, category: "Bridal/Luxury", image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&q=80&w=800", rating: 5.0, sizes: ["S", "M", "L"], description: "Heavyweight premium satin featuring a pearl-encrusted high neckline." },
+    { id: 6, name: "Sapphire Dream Chiffon", price: 27500, category: "Luxury Wear", image: "https://images.unsplash.com/photo-1612459284970-e8f027596582?auto=format&fit=crop&q=80&w=800", rating: 4.7, sizes: ["M", "L", "XL"], description: "Airy multilayered French chiffon with a 5-meter flare." }
+];
