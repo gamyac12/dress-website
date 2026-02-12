@@ -1,8 +1,9 @@
-import React from 'react';
-import { CheckCircle, ShieldCheck, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle, ShieldCheck, Lock, CreditCard, Banknote } from 'lucide-react';
 
 export default function Checkout({ cart, paymentStep, setPaymentStep, handlePayment, setCurrentView, setOrders }) {
     const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+    const [paymentMethod, setPaymentMethod] = useState('card');
 
     if (paymentStep === 2) {
         return (
@@ -78,18 +79,57 @@ export default function Checkout({ cart, paymentStep, setPaymentStep, handlePaym
                         <p className="text-[10px] uppercase font-bold tracking-widest opacity-60 mb-2">Payable Amount</p>
                         <p className="text-3xl font-serif text-amber-400 font-bold">₹{total.toLocaleString()}</p>
                     </div>
-                    <div className="space-y-6">
-                        <input placeholder="Card Number" className="w-full p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50" />
-                        <div className="grid grid-cols-2 gap-6">
-                            <input placeholder="MM/YY" className="p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50" />
-                            <input placeholder="CVV" type="password" className="p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50" />
-                        </div>
+
+                    <div className="mb-8 space-y-4">
+                        <h4 className="text-sm font-bold uppercase tracking-widest text-neutral-500 mb-4">Payment Method</h4>
+
+                        <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'card' ? 'border-amber-800 bg-amber-50/10' : 'border-neutral-200 hover:border-neutral-300'}`}>
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="card"
+                                checked={paymentMethod === 'card'}
+                                onChange={() => setPaymentMethod('card')}
+                                className="w-4 h-4 text-amber-800 border-neutral-300 focus:ring-amber-800"
+                            />
+                            <div className="ml-4 flex items-center gap-3">
+                                <CreditCard className="w-5 h-5 text-neutral-600" />
+                                <span className="font-medium text-sm">Credit / Debit Card</span>
+                            </div>
+                        </label>
+
+                        <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-amber-800 bg-amber-50/10' : 'border-neutral-200 hover:border-neutral-300'}`}>
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="cod"
+                                checked={paymentMethod === 'cod'}
+                                onChange={() => setPaymentMethod('cod')}
+                                className="w-4 h-4 text-amber-800 border-neutral-300 focus:ring-amber-800"
+                            />
+                            <div className="ml-4 flex items-center gap-3">
+                                <Banknote className="w-5 h-5 text-neutral-600" />
+                                <span className="font-medium text-sm">Cash on Delivery</span>
+                            </div>
+                        </label>
                     </div>
+
+                    {paymentMethod === 'card' && (
+                        <div className="space-y-6 fade-in">
+                            <input placeholder="Card Number" className="w-full p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50" />
+                            <div className="grid grid-cols-2 gap-6">
+                                <input placeholder="MM/YY" className="p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50" />
+                                <input placeholder="CVV" type="password" className="p-4.5 border border-neutral-200 rounded-xl text-sm bg-neutral-50" />
+                            </div>
+                        </div>
+                    )}
+
                     <button
                         onClick={handlePayment}
                         className="w-full mt-12 bg-amber-800 text-white py-6 font-bold uppercase tracking-[0.3em] text-[12px] rounded-full flex justify-center gap-3"
                     >
-                        <Lock className="w-4 h-4" /> Securely Pay ₹{total.toLocaleString()}
+                        {paymentMethod === 'card' ? <Lock className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                        {paymentMethod === 'card' ? `Securely Pay ₹${total.toLocaleString()}` : 'Place Order'}
                     </button>
                 </div>
             )}
