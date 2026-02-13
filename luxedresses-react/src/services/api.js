@@ -36,6 +36,57 @@ const api = {
             throw new Error(JSON.stringify(errorData));
         }
         return await response.json();
+    },
+
+    createOrder: async (orderData, token) => {
+        const response = await fetch(`${BASE_URL}/orders/create/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${token}`
+            },
+            body: JSON.stringify(orderData)
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to create order");
+        }
+        return await response.json();
+    },
+
+    getOrders: async (token) => {
+        const response = await fetch(`${BASE_URL}/orders/my-orders/`, {
+            headers: {
+                'Authorization': `Token ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch orders");
+        }
+        return await response.json();
+    },
+
+    getPaymentMethods: async () => {
+        const response = await fetch(`${BASE_URL}/orders/payment-methods/`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch payment methods");
+        }
+        return await response.json();
+        return await response.json();
+    },
+
+    cancelOrder: async (orderId, token) => {
+        const response = await fetch(`${BASE_URL}/orders/cancel/${orderId}/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Token ${token}`
+            }
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to cancel order");
+        }
+        return await response.json();
     }
 };
 

@@ -114,23 +114,53 @@ function App() {
     setCurrentView('checkout');
   };
 
-  const handlePayment = () => {
+  useEffect(() => {
+    if (user) {
+      api.getOrders(localStorage.getItem('token'))
+        .then(data => setOrders(data))
+        .catch(err => console.error("Failed to fetch orders", err));
+    } else {
+      setOrders([]);
+    }
+  }, [user]);
+
+  const handlePayment = async (checkoutData) => {
+    if (!user) {
+      alert("Please login to place an order");
+      toggleLoginModal();
+      return;
+    }
+
     setShowPaymentOverlay(true);
-    setTimeout(() => {
+
+    // Prepare order data
+    const orderData = {
+      items: cart.map(item => ({
+        id: item.id,
+        qty: item.qty,
+        size: item.size
+      })),
+      total: cart.reduce((acc, i) => acc + (i.price * i.qty), 0),
+      shipping_address: JSON.stringify(checkoutData || {}),
+      payment_method: checkoutData.paymentMethod || 'Card'
+    };
+
+    try {
+      const token = localStorage.getItem('token');
+      const newOrder = await api.createOrder(orderData, token);
+
+      setTimeout(() => {
+        setShowPaymentOverlay(false);
+        setOrders([newOrder, ...orders]);
+        setCart([]);
+        setPaymentStep(2);
+        setCurrentView('checkout');
+      }, 2000);
+    } catch (err) {
+      console.error("Order creation failed", err);
       setShowPaymentOverlay(false);
-      const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-      const order = {
-        id: Math.floor(10000 + Math.random() * 90000),
-        date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
-        items: [...cart],
-        total: total,
-        status: 'Confirmed'
-      };
-      setOrders([order, ...orders]);
-      setCart([]);
-      setPaymentStep(2);
-      setCurrentView('checkout');
-    }, 2500);
+      alert("Failed to place order: " + err.message);
+    }
   };
 
   return (

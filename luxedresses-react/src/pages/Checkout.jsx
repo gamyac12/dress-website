@@ -1,9 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, ShieldCheck, Lock, CreditCard, Banknote } from 'lucide-react';
+import api from '../services/api';
 
 export default function Checkout({ cart, paymentStep, setPaymentStep, handlePayment, setCurrentView, setOrders }) {
     const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
-    const [paymentMethod, setPaymentMethod] = useState('card');
+    const [shippingAddress, setShippingAddress] = useState({
+        fullName: '',
+        phone: '',
+        pinCode: '',
+        address: ''
+    });
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [loadingMethods, setLoadingMethods] = useState(false);
+
+    useEffect(() => {
+        if (paymentStep === 1) {
+            setLoadingMethods(true);
+            api.getPaymentMethods()
+                .then(data => {
+                    setPaymentMethods(data);
+                    if (data.length > 0) {
+                        setPaymentMethod(data[0].code);
+                    }
+                    setLoadingMethods(false);
+                })
+                .catch(err => {
+                    console.error("Failed to load payment methods", err);
+                    setLoadingMethods(false);
+                    // Fallback to manual if API fails, or just show error
+                });
+        }
+    }, [paymentStep]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setShippingAddress(prev => ({ ...prev, [name]: value }));
+    };
+
+    const onPayClick = () => {
+        if (!paymentMethod) {
+            alert("Please select a payment method");
+            return;
+        }
+        // Pass payment method to parent handler
+        // Note: We need to modify App.jsx handlePayment to accept paymentMethod or update state there too.
+        // But the previous handlePayment took shippingDetails. Let's send both or modify handlePayment.
+        // App.jsx handlePayment: const handlePayment = async (shippingDetails) => ...
+        // It hardcoded 'Card'. We should update App.jsx too.
+        // For now, let's assume we pass it in the object or change signature?
+        // Actually, let's just pass an object with both.
+        // But wait, the prop is handlePayment(shippingAddress).
+        // I should probably update App.jsx signature.
+        // For this immediate quick fix, I will call handlePayment with extra arg if it supports it, 
+        // or cleaner: handlePayment({ ...shippingAddress, paymentMethod });
+        handlePayment({ ...shippingAddress, paymentMethod });
+    };
 
     if (paymentStep === 2) {
         return (
@@ -55,12 +107,36 @@ export default function Checkout({ cart, paymentStep, setPaymentStep, handlePaym
                 <div className="bg-white p-14 border border-neutral-100 rounded-3xl shadow-sm">
                     <h3 className="text-3xl font-serif mb-12 italic">Where should we deliver?</h3>
                     <div className="space-y-6">
-                        <input placeholder="Full Name" className="w-full p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50" />
+                        <input
+                            name="fullName"
+                            value={shippingAddress.fullName}
+                            onChange={handleInputChange}
+                            placeholder="Full Name"
+                            className="w-full p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50"
+                        />
                         <div className="grid grid-cols-2 gap-6">
-                            <input placeholder="Phone" className="p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50" />
-                            <input placeholder="Pin Code" className="p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50" />
+                            <input
+                                name="phone"
+                                value={shippingAddress.phone}
+                                onChange={handleInputChange}
+                                placeholder="Phone"
+                                className="p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50"
+                            />
+                            <input
+                                name="pinCode"
+                                value={shippingAddress.pinCode}
+                                onChange={handleInputChange}
+                                placeholder="Pin Code"
+                                className="p-4.5 border border-neutral-200 rounded-xl text-sm outline-none bg-neutral-50"
+                            />
                         </div>
-                        <textarea placeholder="Street Address" className="w-full p-4.5 border border-neutral-200 rounded-xl text-sm h-32 outline-none bg-neutral-50"></textarea>
+                        <textarea
+                            name="address"
+                            value={shippingAddress.address}
+                            onChange={handleInputChange}
+                            placeholder="Street Address"
+                            className="w-full p-4.5 border border-neutral-200 rounded-xl text-sm h-32 outline-none bg-neutral-50"
+                        ></textarea>
                     </div>
                     <button
                         onClick={() => setPaymentStep(1)}
@@ -83,35 +159,31 @@ export default function Checkout({ cart, paymentStep, setPaymentStep, handlePaym
                     <div className="mb-8 space-y-4">
                         <h4 className="text-sm font-bold uppercase tracking-widest text-neutral-500 mb-4">Payment Method</h4>
 
-                        <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'card' ? 'border-amber-800 bg-amber-50/10' : 'border-neutral-200 hover:border-neutral-300'}`}>
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                value="card"
-                                checked={paymentMethod === 'card'}
-                                onChange={() => setPaymentMethod('card')}
-                                className="w-4 h-4 text-amber-800 border-neutral-300 focus:ring-amber-800"
-                            />
-                            <div className="ml-4 flex items-center gap-3">
-                                <CreditCard className="w-5 h-5 text-neutral-600" />
-                                <span className="font-medium text-sm">Credit / Debit Card</span>
-                            </div>
-                        </label>
-
-                        <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-amber-800 bg-amber-50/10' : 'border-neutral-200 hover:border-neutral-300'}`}>
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                value="cod"
-                                checked={paymentMethod === 'cod'}
-                                onChange={() => setPaymentMethod('cod')}
-                                className="w-4 h-4 text-amber-800 border-neutral-300 focus:ring-amber-800"
-                            />
-                            <div className="ml-4 flex items-center gap-3">
-                                <Banknote className="w-5 h-5 text-neutral-600" />
-                                <span className="font-medium text-sm">Cash on Delivery</span>
-                            </div>
-                        </label>
+                        {loadingMethods ? (
+                            <p className="text-sm text-neutral-400 italic">Loading payment options...</p>
+                        ) : paymentMethods.length === 0 ? (
+                            <p className="text-sm text-red-400 italic">No payment methods available.</p>
+                        ) : (
+                            paymentMethods.map(method => (
+                                <label key={method.id} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === method.code ? 'border-amber-800 bg-amber-50/10' : 'border-neutral-200 hover:border-neutral-300'}`}>
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        value={method.code}
+                                        checked={paymentMethod === method.code}
+                                        onChange={() => setPaymentMethod(method.code)}
+                                        className="w-4 h-4 text-amber-800 border-neutral-300 focus:ring-amber-800"
+                                    />
+                                    <div className="ml-4 flex items-center gap-3">
+                                        {/* Simple icon mapping based on code or icon_name if we had a mapper. For now valid for card/cod */}
+                                        {method.code === 'card' || method.icon_name === 'CreditCard' ? <CreditCard className="w-5 h-5 text-neutral-600" /> :
+                                            method.code === 'cod' || method.icon_name === 'Banknote' ? <Banknote className="w-5 h-5 text-neutral-600" /> :
+                                                <ShieldCheck className="w-5 h-5 text-neutral-600" />}
+                                        <span className="font-medium text-sm">{method.name}</span>
+                                    </div>
+                                </label>
+                            ))
+                        )}
                     </div>
 
                     {paymentMethod === 'card' && (
@@ -125,7 +197,7 @@ export default function Checkout({ cart, paymentStep, setPaymentStep, handlePaym
                     )}
 
                     <button
-                        onClick={handlePayment}
+                        onClick={onPayClick}
                         className="w-full mt-12 bg-amber-800 text-white py-6 font-bold uppercase tracking-[0.3em] text-[12px] rounded-full flex justify-center gap-3"
                     >
                         {paymentMethod === 'card' ? <Lock className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
